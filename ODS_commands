@@ -1,0 +1,79 @@
+Sub PARAM table
+
+MEB.H.ODS.MULTI.EXT.SUB.PARAM S SYSTEM
+MEB.H.ODS.MULTI.EXT.SUB.PARAM I SYSTEM
+MEB.H.ODS.MULTI.EXT.SUB.PARAM A SYSTEM
+
+F:\T24\Interface\ODSDATA\ULTRACS\OUT
+F:\T24\Interface\ODSDATA\ULTRACS\TEMP
+
+PARAM Table
+
+MEB.H.ODS.MULTI.EXT.PARAM,ODS.EXTRACT I SYSTEM
+MEB.H.ODS.MULTI.EXT.PARAM S SYSTEM
+
+
+Service
+
+TS,RAD I MEB.B.ODS.EXT.TRANS
+TS S MEB.B.ODS.EXT.TRANS
+
+
+BATCH
+
+BATCH, I MEB.B.ODS.EXT.TRANS
+
+
+MEB.B.ODS.EXTRACT.ULT.POST
+
+
+Monitoring
+
+JQL
+
+LIST-ITEM F.LOCKING LIKE MEB.B.ODS...
+
+LIST-ITEM F.BATCH.STATUS MEB.B.ODS.EXT.TRANS-MEB.B.ODS.EXT.TRANS-1
+
+
+
+
+
+
+
+
+If Locking happens in ODS and If we have to reset the all then follow below steps
+
+1. STOP the service first
+	TS,RAD I MEB.B.ODS.EXT.TRANS
+	
+2. Check if all agents have stopped
+	TSA.STATUS
+	L L 
+	SERVICE.NAME EQ MEB.B.ODS.EXT.TRANS
+	
+	if any agents are still running then mark as stopped from backend
+	JED F.TSA.STATUS ID
+	
+3.	Take the back up of temp folder and clear it
+	F:\T24\Interface\ODSDATA\TEMP
+	
+4. Clear the Job list related to ODS service
+   CLEAR-FILE JOB.LIST.ID
+   Ex: CLEAR-FILE F.JOB.LIST.104
+   
+5. Delete F.LOCKING record for ODS
+   JED F.LOCKING LOCKING.ID
+   JED F.LOCKING MEB.B.ODS.EXT.TRANS-MEB.B.ODS.EXT.TRANS-1
+   then d and Y
+   
+6. Delete F.BATCH.STATUS record for ODS
+   JED F.BATCH.STATUS MEB.B.ODS.EXT.TRANS-MEB.B.ODS.EXT.TRANS-1
+   then d and Y
+   
+7. Reset batch record
+   JED F.BATCH MEB.B.ODS.EXT.TRANS
+   mark 3 and 12.1 field as 0.
+   
+8. Setup PARAM table if required. (Command available above)
+
